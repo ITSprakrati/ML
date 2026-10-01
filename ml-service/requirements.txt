@@ -1,0 +1,7 @@
+onnxruntime
+opencv-python-headless
+numpy
+fast-plate-ocr[onnx]>=1.1.0
+fastapi
+uvicorn[standard]
+python-multipart
