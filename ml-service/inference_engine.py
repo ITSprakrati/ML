@@ -2,6 +2,7 @@
 Same JSON output as the original AI-Model/inference_engine.py."""
 import os, re, time, json, argparse
 import cv2
+cv2.setNumThreads(1)
 import numpy as np
 import onnxruntime as ort
 from fast_plate_ocr import LicensePlateRecognizer
@@ -39,13 +40,20 @@ def _get_session(model_path):
     if model_path not in _CACHE:
         so = ort.SessionOptions()
         so.intra_op_num_threads = int(os.environ.get("ORT_THREADS", "2"))
+        so.inter_op_num_threads = 1
+        so.enable_cpu_mem_arena = False
         so.enable_mem_pattern = False  # lower RAM
         _CACHE[model_path] = ort.InferenceSession(model_path, so, providers=["CPUExecutionProvider"])
     return _CACHE[model_path]
 
 def _get_ocr():
     if "ocr" not in _CACHE:
-        _CACHE["ocr"] = LicensePlateRecognizer("cct-xs-v2-global-model")
+        so = ort.SessionOptions()
+        so.intra_op_num_threads = 1
+        so.inter_op_num_threads = 1
+        so.enable_cpu_mem_arena = False
+        so.enable_mem_pattern = False
+        _CACHE["ocr"] = LicensePlateRecognizer("cct-xs-v2-global-model", providers=["CPUExecutionProvider"], sess_options=so)
     return _CACHE["ocr"]
 
 def _letterbox(img):

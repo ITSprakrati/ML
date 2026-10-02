@@ -8,5 +8,5 @@ COPY . .
 RUN cat models/custom_trained_model.onnx.part* > models/custom_trained_model.onnx && cd models && sha256sum -c ../model.sha256 && cd .. && rm models/*.part*
 # download OCR model at build time so startup is fast
 RUN python -c "from fast_plate_ocr import LicensePlateRecognizer; LicensePlateRecognizer('cct-xs-v2-global-model')"
-ENV ORT_THREADS=1
+ENV ORT_THREADS=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONUNBUFFERED=1
 CMD ["sh","-c","uvicorn app:app --host 0.0.0.0 --port ${PORT:-10000} --workers 1"]
